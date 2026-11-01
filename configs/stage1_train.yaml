@@ -1,0 +1,59 @@
+# Stage 1: subject-relative micro-motion representation (PTE + MoViNet-A2, trained with CE + ISDL)
+
+experiment_name: "ViNUSS_stage1"
+experiments_save_path: "./experiments/stage1"
+split_path: "./data/splits"
+
+model_config:
+  pretrained: true
+  num_classes: 5
+
+learning_config:
+  lr: 0.001
+  scheduler_name: null  # null = constant LR (paper); or "WarmupCosineAnnealingLR"
+  num_epochs: 350
+  gpus: [0, 1]
+  accumulate_grad_batches: 2  # 8 triplets per optimizer step with 2 GPUs
+  check_val_every_n_epoch: 3
+  skip_val_epoch: 20  # no validation during the first 20 epochs
+  warmup_epochs: 20  # only used with scheduler_name: "WarmupCosineAnnealingLR"
+
+data_config:
+  data_path: "/path/to/kvss_h5/224x224"  # Path to video h5 files (output of preprocess/video_to_h5.py)
+  mode: "double_loss"  # "double_loss" = CE + ISDL, "epochs" = CE only
+  num_workers: 8
+  num_classes: 5
+  batch_size_t: 2
+  batch_size_v: 2
+  proportion_t: 0.03  # 3% of training epochs as anchors per optimizer epoch; x3 (anchor, positive, negative) = ~9% of epochs
+
+  # Training augmentations
+  transforms_t:
+    normalize_stat:
+      mean: 0.608
+      std: 0.144
+    TensorRandomBrightness: 0.2
+    TensorRandomContrast: 0.2
+    TensorRandomFlip: 0.5
+    TensorRandomRotation: 30
+    TensorRandomScaling: [0.8, 1.1]
+
+  # Validation augmentations (only normalization)
+  transforms_v:
+    normalize_stat:
+      mean: 0.608
+      std: 0.144
+    TensorRandomBrightness: 0
+    TensorRandomContrast: 0
+    TensorRandomFlip: 0
+    TensorRandomRotation: 0
+    TensorRandomScaling: [1.0, 1.0]
+
+  same_aug_for_contrastive: false
+
+# Resume training (set to null for fresh start)
+previous_checkpoint: null
+
+# Logging
+wandb: false
+project_name: "ViNUSS_stage1"

@@ -1,0 +1,50 @@
+# Stage 2: Sleep Dynamics Modeling (ShortMamba within each epoch + bidirectional LongMamba over the night)
+
+experiment_name: "ViNUSS_stage2"
+experiments_save_path: "./experiments/stage2"
+split_path: "./data/splits"
+
+model_config:
+  num_classes: 5
+  Time_Max: 1500  # Maximum number of epochs per night (positional embedding size)
+  mamba_version: 1  # 1 = Mamba, 2 = Mamba2
+
+  # LongMamba (full night)
+  d_model: 128
+  d_state: 32
+  n_layer: 4
+  d_conv: 4
+  expand: 2
+  bidirectional: true
+
+  # ShortMamba (within epoch)
+  d_model_short: 256
+  d_state_short: 64
+  n_layer_short: 2
+  d_conv_short: 4
+  d_expand_short: 2
+  bidirectional_short: false
+
+learning_config:
+  lr: 0.0001
+  scheduler_name: null  # null = constant LR (paper); or "CosineAnnealingLR"
+  num_epochs: 300
+  gpus: [0, 1]
+  accumulate_grad_batches: 32  # 64 nights per optimizer step with 2 GPUs
+  check_val_every_n_epoch: 1
+
+data_config:
+  data_path: "./features"  # Stage 1 features written by extract_features.py
+  mode: "subject"  # One full night per sample
+  num_workers: 8
+  batch_size_t: 1
+  batch_size_v: 1
+
+# Resume training (set to null for fresh start)
+previous_checkpoint: null
+
+istest: false  # true = evaluate previous_checkpoint on the test split (same as --test)
+
+# Logging
+wandb: false
+project_name: "ViNUSS_stage2"

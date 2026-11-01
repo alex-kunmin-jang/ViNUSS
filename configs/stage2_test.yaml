@@ -1,0 +1,46 @@
+# Stage 2 test-only config: evaluate the released checkpoint on the test split.
+#   python train_stage2.py --config configs/stage2_test.yaml --test
+# Writes experiments/stage2/ViNUSS_stage2_test/test_results.csv (subject, epoch, prediction, label);
+# then run  python evaluate.py --predictions experiments/stage2/ViNUSS_stage2_test/test_results.csv
+
+experiment_name: "ViNUSS_stage2_test"
+experiments_save_path: "./experiments/stage2"
+split_path: "./data/splits"
+
+model_config:
+  num_classes: 5
+  Time_Max: 1500
+  mamba_version: 1
+  d_model: 128
+  d_state: 32
+  n_layer: 4
+  d_conv: 4
+  expand: 2
+  bidirectional: true
+  d_model_short: 256
+  d_state_short: 64
+  n_layer_short: 2
+  d_conv_short: 4
+  d_expand_short: 2
+  bidirectional_short: false
+
+learning_config:
+  lr: 0.0001
+  scheduler_name: null
+  num_epochs: 300
+  gpus: [0]
+  accumulate_grad_batches: 32
+  check_val_every_n_epoch: 1
+
+data_config:
+  data_path: "./features_release"  # features of the released Stage 1 checkpoint (extract_features.py)
+  mode: "subject"
+  num_workers: 8
+  batch_size_t: 1
+  batch_size_v: 1
+
+previous_checkpoint: "checkpoints/stage2.ckpt"
+
+istest: true
+wandb: false
+project_name: "ViNUSS_stage2"

@@ -1,0 +1,39 @@
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# editors / notebooks
+*.ipynb
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+.env
+
+# data
+data/splits/*.txt
+*.h5
+*.hdf5
+*.mp4
+*.npy
+features/
+features_release/
+
+# model weights
+checkpoints/*.ckpt
+checkpoints/*.pth
+checkpoints/*.pt
+
+# experiment outputs
+experiments/
+results/
+logs/
+wandb/
+lightning_logs/
+*.log
+
+# figure sources
+assets/*.pdf
